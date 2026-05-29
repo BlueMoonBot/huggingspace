@@ -21,7 +21,10 @@ jobs:
           URLS=(
             "https://bluemoonbot-bluemoonbot-lichess.hf.space"
             "https://bluemoonbot-hectobot1.hf.space"
-            "https://bluemoonbot-fluffybot.hf.space
+            "https://bluemoonbot-fluffybot.hf.space"
+            "https://bluemoonbot-bot.hf.space"
+
+      
           )
           # =========================================================
 
