@@ -7,12 +7,19 @@ on:
     - cron: '0 */6 * * *'
   workflow_dispatch: # Allows manual click-to-run testing in GitHub UI
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   prevent-sleep:
     runs-on: ubuntu-latest
     name: Keep-Alive Engine
     
     steps:
+      - name: Checkout Repository Architecture
+        uses: actions/checkout@v4
+
       - name: Keep-Alive Execution Loop
         run: |
           # =========================================================
@@ -23,8 +30,6 @@ jobs:
             "https://bluemoonbot-hectobot1.hf.space"
             "https://bluemoonbot-fluffybot.hf.space"
             "https://bluemoonbot-bot.hf.space"
-
-      
           )
           # =========================================================
 
@@ -66,3 +71,25 @@ jobs:
           echo "======================================================"
           echo "🎉 All Lichess bot endpoints successfully sustained!"
           echo "======================================================"
+
+          # =========================================================================
+          # SELF-SUSTAINMENT MODULE (Resets GitHub's 60-Day Inactivity Clock)
+          # =========================================================================
+          echo ""
+          echo "🔄 Initiating GitHub Self-Sustainment Cycle..."
+          
+          # Configure the local git instance to use GitHub's official bot identity
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Write a small timestamp update to a local tracking file
+          echo "Lichess Bots Keep-Alive Pulse: $(date -u)" > bot_pulse.txt
+          
+          # Safely stage, commit, and push back to GitHub without loop triggers
+          git add bot_pulse.txt
+          if git commit -m "chore(keepalive): sustainment pulse [skip ci]" --allow-empty; then
+            git push
+            echo "🌌 Pulse pushed successfully. GitHub inactivity timer has been reset!"
+          else
+            echo "⚠️ Commit skipped or failed. Check configurations."
+          fi
