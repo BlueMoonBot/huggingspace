@@ -19,8 +19,8 @@ jobs:
       - name: Checkout Repository Architecture
         uses: actions/checkout@v4
         with:
-          # Using your Personal Access Token so GitHub registers this as human activity
-          token: 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 
+          # Securely fetches your hidden secret token
+          token: ${{ secrets.HUMAN_TOKEN }}
 
       - name: Keep-Alive Execution Loop
         run: |
@@ -75,17 +75,15 @@ jobs:
           echo ""
           echo "🔄 Initiating GitHub Self-Sustainment Cycle..."
            
-          # Configure git identity
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
            
-          # Write timestamp update
           echo "Lichess Bots Keep-Alive Pulse: $(date -u)" > bot_pulse.txt
            
-          # Stage, commit, and push back using your human PAT for authentication
           git add bot_pulse.txt
           if git commit -m "chore(keepalive): sustainment pulse [skip ci]" --allow-empty; then
-            git push "https://x-access-token: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@github.com/${{ github.repository }}.git" HEAD:${{ github.ref_name }}
+            # Safe authentication using the workflow variable mapping
+            git push "https://x-access-token:${{ secrets.HUMAN_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref_name }}
             echo "🌌 Pulse pushed successfully via Human Token. GitHub inactivity timer has been reset!"
           else
             echo "⚠️ Commit skipped or failed."
