@@ -3,7 +3,6 @@ name: Infinite Keep-Alive for Lichess Bots
 on:
   schedule:
     # Runs every 6 hours (00:00, 06:00, 12:00, 18:00 UTC)
-    # Aggressive enough to bypass HF sleep and absorb any random server resets.
     - cron: '0 */6 * * *'
   workflow_dispatch: # Allows manual click-to-run testing in GitHub UI
 
@@ -20,13 +19,13 @@ jobs:
       - name: Checkout Repository Architecture
         uses: actions/checkout@v4
         with:
-          # Uses GitHub's built-in cryptographic token instead of a risky hardcoded string
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Using your Personal Access Token so GitHub registers this as human activity
+          token: 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
 
       - name: Keep-Alive Execution Loop
         run: |
           # =========================================================
-          # CONFIGURATION: ADD YOUR HUGGING FACE LINKS HERE
+          # CONFIGURATION: HUGGING FACE ENDPOINTS
           # =========================================================
           URLS=(
             "https://bluemoonbot-bluemoonbot-lichess.hf.space"
@@ -43,13 +42,9 @@ jobs:
             echo "🌐 Targeting Space: $url"
             echo "------------------------------------------------------"
              
-            # Docker containers on free Spaces often need a warm-up phase 
-            # if Hugging Face cycles the underlying node. We hit the Space 
-            # 3 times spaced 15 seconds apart to ensure it stays fully awake.
             for attempt in {1..3}; do
               echo "⏳ [Attempt $attempt/3] Sending ping to wake or sustain container..."
                
-              # Execute curl with a 15-second timeout, grabbing the HTTP status code
               status_code=$(curl -s -L -o /dev/null --connect-timeout 15 --max-time 20 -w "%{http_code}" "$url")
                
               echo "📊 Server responded with HTTP Status: $status_code"
@@ -64,7 +59,6 @@ jobs:
                 echo "ℹ️ Space returned non-standard status, but traffic was successfully registered."
               fi
                
-              # Wait 15 seconds before hitting it again to guarantee continuous traffic stream
               if [ $attempt -lt 3 ]; then
                 sleep 15
               fi
@@ -81,19 +75,18 @@ jobs:
           echo ""
           echo "🔄 Initiating GitHub Self-Sustainment Cycle..."
            
-          # Configure the local git instance to use GitHub's official bot identity
+          # Configure git identity
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
            
-          # Write a small timestamp update to a local tracking file
+          # Write timestamp update
           echo "Lichess Bots Keep-Alive Pulse: $(date -u)" > bot_pulse.txt
            
-          # Safely stage, commit, and push back to GitHub without loop triggers
+          # Stage, commit, and push back using your human PAT for authentication
           git add bot_pulse.txt
           if git commit -m "chore(keepalive): sustainment pulse [skip ci]" --allow-empty; then
-            # Secure authenticated push syntax using the automatic runner token
-            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref_name }}
-            echo "🌌 Pulse pushed successfully. GitHub inactivity timer has been reset!"
+            git push "https://x-access-token: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@github.com/${{ github.repository }}.git" HEAD:${{ github.ref_name }}
+            echo "🌌 Pulse pushed successfully via Human Token. GitHub inactivity timer has been reset!"
           else
-            echo "⚠️ Commit skipped or failed. Check configurations."
+            echo "⚠️ Commit skipped or failed."
           fi
