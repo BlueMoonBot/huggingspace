@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Repository Architecture
         uses: actions/checkout@v4
         with:
-          # Securely fetches your hidden secret token
+          # Securely pulls the token you saved in repository secrets
           token: ${{ secrets.HUMAN_TOKEN }}
 
       - name: Keep-Alive Execution Loop
@@ -82,7 +82,7 @@ jobs:
            
           git add bot_pulse.txt
           if git commit -m "chore(keepalive): sustainment pulse [skip ci]" --allow-empty; then
-            # Safe authentication using the workflow variable mapping
+            # Pushes code updates using your secret human token to bypass the 60-day rule
             git push "https://x-access-token:${{ secrets.HUMAN_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref_name }}
             echo "🌌 Pulse pushed successfully via Human Token. GitHub inactivity timer has been reset!"
           else
