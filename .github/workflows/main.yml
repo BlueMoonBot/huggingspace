@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # Using your Personal Access Token so GitHub registers this as human activity
-          token: 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
+          token: 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 
 
       - name: Keep-Alive Execution Loop
         run: |
