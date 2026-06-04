@@ -20,7 +20,8 @@ jobs:
       - name: Checkout Repository Architecture
         uses: actions/checkout@v4
         with:
-          token: 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
+          # Uses GitHub's built-in cryptographic token instead of a risky hardcoded string
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Keep-Alive Execution Loop
         run: |
@@ -90,7 +91,8 @@ jobs:
           # Safely stage, commit, and push back to GitHub without loop triggers
           git add bot_pulse.txt
           if git commit -m "chore(keepalive): sustainment pulse [skip ci]" --allow-empty; then
-            git push
+            # Secure authenticated push syntax using the automatic runner token
+            git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:${{ github.ref_name }}
             echo "🌌 Pulse pushed successfully. GitHub inactivity timer has been reset!"
           else
             echo "⚠️ Commit skipped or failed. Check configurations."
