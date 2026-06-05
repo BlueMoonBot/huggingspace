@@ -17,7 +17,7 @@ jobs:
      
     steps:
       - name: Checkout Repository Architecture
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6
         with:
           # Securely pulls the token you saved in repository secrets
           token: ${{ secrets.HUMAN_TOKEN }}
